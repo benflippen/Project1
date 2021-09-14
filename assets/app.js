@@ -28,24 +28,45 @@ $(document).ready(function () {
   var favoritelist = [];
 
   //This is saving artist list on Firebase
-  database.ref().on("child_added", function (snapshot) {
-    var savedArtist = snapshot.val();
-    console.log(savedArtist.name);
+  // database.ref().on("child_added", function (snapshot) {
+  //   var savedArtist = snapshot.val();
+  //   console.log(savedArtist.name);
+  //
+  //   var artistbtn = $("<button>").addClass("artistBtn btn btn-default").val(savedArtist.name).text(savedArtist.name);
+  //   //this if statement deletes the duplicate name created by the child_added function of firebase
+  //   if (favoritelist[0] !== savedArtist.name) favoritelist.unshift(savedArtist.name);
+  //
+  //   var div = $("<li>").append(artistbtn);
+  //   $("#userSearch").prepend(div);
+  // })
 
-    var artistbtn = $("<button>").addClass("artistBtn btn btn-default").val(savedArtist.name).text(savedArtist.name);
-    //this if statement deletes the duplicate name created by the child_added function of firebase 
-    if (favoritelist[0] !== savedArtist.name) favoritelist.unshift(savedArtist.name);
 
-    var div = $("<li>").append(artistbtn);
-    $("#userSearch").prepend(div);
-  })
+  const task = document.getElementById("task");
+      task.addEventListener("click", function (e) {
+        let card = document.querySelector(".card-body");
+        let nameInput = document.getElementById("nameInput");
+        let userSearch = document.getElementById("userSearch");
+        let create = document.createElement("li");
+        let value = nameInput.value;
+        create.setAttribute("id","userSearch");
+        let text = document.createTextNode(value);
+        create.appendChild(text);
+        card.appendChild(create);
+        nameInput.value = '';
+    });
+
+
+
+
+
+
 
   $(document).on("click", ".artistBtn", function () {
     console.log(this);
     var artistInput = $(this).val();
 
     console.log(artistInput);
-    //Youtube info for api 
+    //Youtube info for api
     var queryURL = "https://www.googleapis.com/youtube/v3/search?&part=snippet&q=" + artistInput +
       "&key=AIzaSyDkXdU2LudYi2Gin1FZMypNn1MCbSzcS-M";
     var queryURL2 = "https://api.songkick.com/api/3.0/search/artists.json?apikey=wuCD2ljEi5nAfdAE&query=" + artistInput
@@ -59,12 +80,12 @@ $(document).ready(function () {
       console.log(response);
       var searchResults = response.items[2].id.videoId;
 
-      //Youtube player attribute adding the search results to Youtube 
+      //Youtube player attribute adding the search results to Youtube
       $('#player').attr("src", "https://www.youtube.com/embed/" + searchResults);
 
     });
 
-    //ajax call for song kick to get artist by id 
+    //ajax call for song kick to get artist by id
     $.ajax({
       url: queryURL2,
       method: "GET",
@@ -73,16 +94,16 @@ $(document).ready(function () {
       //target item artist for songkick api
       //   console.log(response.resultsPage.results.artist[0].id);
       var artistId = response.resultsPage.results.artist[0].id;
-      //Songkick url to get artist id by event pulling from calendar in songkick api 
+      //Songkick url to get artist id by event pulling from calendar in songkick api
       var eventsUrl = "https://api.songkick.com/api/3.0/artists/" + artistId + "/calendar.json?apikey=wuCD2ljEi5nAfdAE"
 
-      //ajax call to get events by artist name 
+      //ajax call to get events by artist name
       $.ajax({
         url: eventsUrl,
         method: "GET",
       }).then(function (response) {
         console.log(response);
-        //   console.log(responsePage.results.event[0].id); //changed .id with .displayName change back if doesnt work 
+        //   console.log(responsePage.results.event[0].id); //changed .id with .displayName change back if doesnt work
         //   $("#songkickevents").append(id);
         var eventList = response.resultsPage.results.event;
         $("#songkickevents").empty();
@@ -102,14 +123,13 @@ $(document).ready(function () {
   // Function called when the form is submitted.
   // Function adds favorite artist to the global array.
   function addfavartist() {
-
     var task = document.getElementById("nameInput");
 
     if (task.value) {
       favoritelist.unshift(task.value);
       database.ref().push({name:task.value});
 
-    } 
+    }
 
     return false;
 
@@ -121,39 +141,39 @@ $(document).ready(function () {
     addfavartist();
   })
 
-  //Making function for to set up ajax call 
+  //Making function for to set up ajax call
   function attachAjaxCall() {
 
     $('li').css('cursor', 'pointer')
       .click(function () {
 
-        //call youtube api to get json for youtube link 
+        //call youtube api to get json for youtube link
 
         var artistInput = this.innerText;
         // debugger;
         console.log(artistInput);
-        //Youtube url for api 
+        //Youtube url for api
         var queryURL = "https://www.googleapis.com/youtube/v3/search?&part=snippet&q=" + artistInput +
           "&key=AIzaSyDkXdU2LudYi2Gin1FZMypNn1MCbSzcS-M";
-        //Song kick api url plus arist input 
+        //Song kick api url plus arist input
         var queryURL2 = "https://api.songkick.com/api/3.0/search/artists.json?apikey=wuCD2ljEi5nAfdAE&query=" + artistInput
 
 
-        // ajax call for Youtube 
+        // ajax call for Youtube
         $.ajax({
           url: queryURL,
           method: "GET",
         }).then(function (response) {
           //   console.log(response);
-          //Our target item from the Youtube api 
+          //Our target item from the Youtube api
           var searchResults = response.items[2].id.videoId;
 
-          //Youtube player attribute adding the search results to Youtube 
+          //Youtube player attribute adding the search results to Youtube
           $('#player').attr("src", "https://www.youtube.com/embed/" + searchResults);
 
         });
 
-        //ajax call for song kick to get artist by id 
+        //ajax call for song kick to get artist by id
         $.ajax({
           url: queryURL2,
           method: "GET",
@@ -162,16 +182,16 @@ $(document).ready(function () {
           //target item artist for songkick api
           //   console.log(response.resultsPage.results.artist[0].id);
           var artistId = response.resultsPage.results.artist[0].id;
-          //Songkick url to get artist id by event pulling from calendar in songkick api 
+          //Songkick url to get artist id by event pulling from calendar in songkick api
           var eventsUrl = "https://api.songkick.com/api/3.0/artists/" + artistId + "/calendar.json?apikey=wuCD2ljEi5nAfdAE"
 
-          //ajax call to get events by artist name 
+          //ajax call to get events by artist name
           $.ajax({
             url: eventsUrl,
             method: "GET",
           }).then(function (response) {
             console.log(response);
-            //   console.log(responsePage.results.event[0].id); //changed .id with .displayName change back if doesnt work 
+            //   console.log(responsePage.results.event[0].id); //changed .id with .displayName change back if doesnt work
             //   $("#songkickevents").append(id);
             var eventList = response.resultsPage.results.event;
             $("#songkickevents").empty();
